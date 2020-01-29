@@ -1,3 +1,5 @@
+from doubly_linked_list import *
+
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -7,7 +9,17 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
+        self.limit = limit
+        self.items = 0
+        self.dll = DoublyLinkedList()
+        self.storage = {}
+
+        # if self.items > 0:
+        #     current_val = self.dll.head
+        #     for i in range(self.items):
+        #         self.storage.append(current_val.value)
+        #         current_val = current_val.next
+
 
     """
     Retrieves the value associated with the given key. Also
@@ -17,7 +29,19 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+
+        val = self.storage.get(key)
+
+        if val is not None:
+            node = self.dll.head
+
+            while node and node.value != (key, val):
+                node = node.next
+
+            if node and node.value[0] == key:
+                self.dll.move_to_front(node)
+
+        return val
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -30,4 +54,36 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        
+
+        #if cache over capacity, remove tail
+        if self.items == self.limit:
+            self.dll.remove_from_tail()
+
+        #add to number of items
+        else:
+            self.items += 1
+
+        #removes key if exists in dictionary and returns as tuple
+        val = self.storage.pop(key, None)
+
+        #if key exists in dictionary and linked list, deletes from linked list
+        if val:
+            node = self.dll.head
+
+            while node:
+                if node.value[0] == key:
+                    self.dll.delete(node)
+                    node = None
+                    
+                else:
+                    node = node.next
+            self.items -= 1
+
+        #add to to dll head, and to storage dict
+        self.dll.add_to_head((key, value))
+        self.storage[key] = value
+
+        # print(self.storage.items)
+        # self.dll.print_list()
+
